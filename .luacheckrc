@@ -53,6 +53,7 @@ globals = {
     "SlashCmdList",
 
     -- Functions
+    "BreakUpLargeNumbers",
     "CompactUnitFrame_UpdateAuras",
     "CooldownFrame_Clear",
     "CooldownFrame_Set",
