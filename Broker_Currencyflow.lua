@@ -9,7 +9,7 @@ local FULLNAME          = "Broker: " .. MODNAME
 local Currencyflow      = LibStub("AceAddon-3.0"):NewAddon(MODNAME, "AceEvent-3.0")
 local QT                = LibStub:GetLibrary("LibQTip-1.0")
 local L                 = LibStub:GetLibrary("AceLocale-3.0"):GetLocale(MODNAME)
-local Config            = LibStub("AceConfig-3.0")
+-- local Config            = LibStub("AceConfig-3.0")
 local ConfigReg         = LibStub("AceConfigRegistry-3.0")
 local ConfigDlg         = LibStub("AceConfigDialog-3.0")
 
@@ -192,15 +192,15 @@ for k, v in pairs(currencies["misc"]) do tracking[k] = v end
 -- Does not copy metatable information
 local function deepcopy(object)
   local lookup_table = {}
-  local function _copy(object)
-    if type(object) ~= "table" then
-      return object
-    elseif lookup_table[object] then
-      return lookup_table[object]
+  local function _copy(obj)
+    if type(obj) ~= "table" then
+      return obj
+    elseif lookup_table[obj] then
+      return lookup_table[obj]
     end
     local new_table = {}
-    lookup_table[object] = new_table
-    for index, value in pairs(object) do
+    lookup_table[obj] = new_table
+    for index, value in pairs(obj) do
       new_table[_copy(index)] = _copy(value)
     end
     return new_table
@@ -339,27 +339,29 @@ end
 ]]
 function Currencyflow:db_GetHistory(char, day, currency)
   -- Basically the same thing, except no sums/ranges!
-  local getval = function(char, day, currency)
+  local getval = function(ch, da, curr)
     -- time is set to 1 to avoid division by zero later on
     local time, gained, spent = 1, 0, 0
-    if day == 0 then
+    if da == 0 then
       time = self.session.time or 0
-      if self.session[currency] then
-        gained = self.session[currency].gained or 0
-        spent = self.session[currency].spent or 0
+      if self.session[curr] then
+        gained = self.session[curr].gained or 0
+        spent = self.session[curr].spent or 0
       end
-    elseif self.db.realm.chars[char] and self.db.realm.chars[char].history and self.db.realm.chars[char].history[day] then
-      time = self.db.realm.chars[char].history[day].time or 0
-      self.db.realm.chars[char].history[day][currency] = self.db.realm.chars[char].history[day][currency] or {}
-      if self.db.realm.chars[char].history[day][currency] then
-        gained = self.db.realm.chars[char].history[day][currency].gained or 0
-        spent = self.db.realm.chars[char].history[day][currency].spent or 0
+    elseif self.db.realm.chars[ch] and self.db.realm.chars[ch].history and self.db.realm.chars[ch].history[da] then
+      time = self.db.realm.chars[ch].history[da].time or 0
+      self.db.realm.chars[ch].history[da][curr] = self.db.realm.chars[ch].history[da][curr] or {}
+      if self.db.realm.chars[ch].history[da][curr] then
+        gained = self.db.realm.chars[ch].history[da][curr].gained or 0
+        spent = self.db.realm.chars[ch].history[da][curr].spent or 0
       end
     end
     return time, gained, spent
   end
 
-  local x, time, gained, spent, t, g, s = 0, 0, 0, 0, 1, 0, 0
+  -- local x, time, gained, spent, t, g, s = 0, 0, 0, 0, 1, 0, 0
+  local time, gained, spent = 0, 0, 0
+  local t, g, s
 
   if char > 0 then
     if day >= 0 then
