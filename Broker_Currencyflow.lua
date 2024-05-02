@@ -508,7 +508,7 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
       amount = 0
     end
   elseif tracking[currencyId].type == TYPE_ITEM then
-    amount = GetItemCount(currencyId, true) or 0
+    amount = C_Item.GetItemCount(currencyId, true) or 0
   end
 
   -- Bail if amount has not changed
@@ -876,7 +876,7 @@ function Currencyflow:UpdateLabel()
           amount = 0
         end
       elseif tracking[segment].type == TYPE_ITEM then
-        amount = GetItemCount(segment, true) or 0
+        amount = C_Item.GetItemCount(segment, true) or 0
       end
       return self:FormatCurrency(amount, (color or "")) .. " |T" .. tracking[segment].icon .. ":0|t"
     else
@@ -1232,7 +1232,7 @@ function Currencyflow:LoadCurrencies()
         icon = currencyInfo.iconFileID
       end
     elseif currency.type == TYPE_ITEM then
-      name, _, _, _, _, _, _, _, _, icon, _ = GetItemInfo(id)
+      name, _, _, _, _, _, _, _, _, icon, _ = C_Item.GetItemInfo(id)
     elseif currency.type == TYPE_FRAGMENT then
       local name, icon, _, _ = GetArchaeologyRaceInfo(currency.index)
       -- Another dumb marvel of blizz consistency. When info
