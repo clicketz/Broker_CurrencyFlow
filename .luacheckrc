@@ -46,6 +46,7 @@ globals = {
     "C_ClassColor",
     "C_CraftingOrders",
     "C_CurrencyInfo",
+    "C_Item",
     "C_Spell",
     "C_Timer",
     "C_TooltipInfo",
