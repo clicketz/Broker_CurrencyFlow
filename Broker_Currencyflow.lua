@@ -254,14 +254,14 @@ end
   if colorize is true, it will color the text red if negative, green if positive (or 0)
   if it's false, it wil color the text white, and with a "-" in front if it's negative
 ]]
-function Currencyflow:FormatGold(amt, colorize)
+function Currencyflow:FormatGold(amount, colorize)
   -- Make sure amount is a number
   -- NaN values are not equal to themselfs, see http://snippets.luacode.org/snippets/Test_for_NaN_75
-  if amt ~= amt or tostring(amt) == "-1.#IND" or tostring(amt) == "-nan(ind)" then amt = 0 end
+  if amount ~= amount or tostring(amount) == "-1.#IND" or tostring(amount) == "-nan(ind)" then amount = 0 end
 
-  local gold = floor(abs(amt / 10000))
-  local silver = floor(abs(mod(amt / 100, 100)))
-  local copper = abs(mod(amt, 100))
+  local gold = floor(abs(amount / 10000))
+  local silver = floor(abs(mod(amount / 100, 100)))
+  local copper = abs(mod(amount, 100))
 
   -- Make sure the values are numbers too
   if gold ~= gold then gold = 0 end
@@ -274,8 +274,8 @@ function Currencyflow:FormatGold(amt, colorize)
   if colorize and self.db.profile.cashFormat ~= 1 then
     -- With format 1, the text color itself is in gold/silver/copper,
     -- so colorize has no effect, and we always show "-" on negative
-    if amt < 0 then color = COLOR_RED else color = COLOR_GREEN end
-  elseif amt < 0 then
+    if amount < 0 then color = COLOR_RED else color = COLOR_GREEN end
+  elseif amount < 0 then
     sign = "-"
   end
 
@@ -326,11 +326,11 @@ end
   Formats (colors) the given amount of currency with either the given color, or
   red/green if none given
 ]]
-function Currencyflow:FormatCurrency(amt, color)
+function Currencyflow:FormatCurrency(amount, color)
   if color == "" then
-    if amt < 0 then color = COLOR_RED else color = COLOR_GREEN end
+    if amount < 0 then color = COLOR_RED else color = COLOR_GREEN end
   end
-  return "|cff" .. color .. amt .. "|r"
+  return "|cff" .. color .. amount .. "|r"
 end
 
 --[[
