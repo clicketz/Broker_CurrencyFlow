@@ -17,11 +17,22 @@ _G["Currencyflow"]      = Currencyflow
 
 local tooltip, _
 local RAID_CLASS_COLORS = CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS
+
 local ICON_QM           = "Interface\\Icons\\INV_Misc_QuestionMark"
+local ICON_GOLD         = "|TInterface\\MoneyFrame\\UI-GoldIcon:0|t"
+local ICON_SILVER       = "|TInterface\\MoneyFrame\\UI-SilverIcon:0|t"
+local ICON_COPPER       = "|TInterface\\MoneyFrame\\UI-CopperIcon:0|t"
+
+local COLOR_WHITE       = "ffffff"
+local COLOR_GREEN       = "00ff00"
+local COLOR_RED         = "ff0000"
+local COLOR_COPPER      = "eda55f"
+local COLOR_SILVER      = "c7c7cf"
+local COLOR_GOLD        = "ffd700"
+local COLOR_MAXREACHED  = "ff8800"
 
 local fmt_yellow        = "|cffffff00%s|r"
 local fmt_white         = "|cffffffff%s|r"
-local COLOR_MAXREACHED  = "ff8800"
 local HISTORY_DAYS      = 30
 
 local TYPE_MONEY        = 1
@@ -242,17 +253,6 @@ end
   if it's false, it wil color the text white, and with a "-" in front if it's negative
 ]]
 function Currencyflow:FormatGold(amt, colorize)
-  local ICON_GOLD = "|TInterface\\MoneyFrame\\UI-GoldIcon:0|t"
-  local ICON_SILVER = "|TInterface\\MoneyFrame\\UI-SilverIcon:0|t"
-  local ICON_COPPER = "|TInterface\\MoneyFrame\\UI-CopperIcon:0|t"
-
-  local COLOR_WHITE = "ffffff"
-  local COLOR_GREEN = "00ff00"
-  local COLOR_RED = "ff0000"
-  local COLOR_COPPER = "eda55f"
-  local COLOR_SILVER = "c7c7cf"
-  local COLOR_GOLD = "ffd700"
-
   -- Make sure amount is a number
   -- NaN values are not equal to themselfs, see http://snippets.luacode.org/snippets/Test_for_NaN_75
   if amt ~= amt or tostring(amt) == "-1.#IND" or tostring(amt) == "-nan(ind)" then amt = 0 end
