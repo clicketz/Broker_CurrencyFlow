@@ -7,6 +7,7 @@ exclude_files = {
 ignore = {
     "11./SLASH_.*", -- slash handler
     "211/L",        -- Unused local variable "L"
+    "211",          -- Unused Variable
     "212",          -- unused argument
 }
 globals = {
