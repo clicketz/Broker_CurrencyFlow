@@ -447,7 +447,7 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
 
     -- Only for currencies, that have a weekly maximum
     if lastWeekEarned and weeklyMax > 0 and lastWeekEarned > earnedThisWeek then
-      for idx, charinfo in pairs(self.db.realm.chars) do
+      for _, charinfo in pairs(self.db.realm.chars) do
         charinfo["maxReached" .. currencyId] = false
       end
     end
