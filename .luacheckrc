@@ -39,6 +39,7 @@ globals = {
     "InterfaceOptionsFrame",
     "PartyFrame",
     "SettingsPanel",
+    "StaticPopupDialogs",
     "UIParent",
 
     -- Misc
@@ -66,10 +67,12 @@ globals = {
     "floor",
     "format",
     "GetAddOnMetadata",
+    "GetArchaeologyRaceInfo",
     "GetBuildInfo",
     "GetCVar",
     "GetCVarBool",
     "GetLocale",
+    "GetMoney",
     "GetNumGroupMembers",
     "GetPlayerInfoByGUID",
     "GetRealmName",
@@ -96,6 +99,7 @@ globals = {
     "SetBorderSizes",
     "SetCVar",
     "SetVertexColor",
+    "StaticPopup_Show",
     "time",
     "UnitAura",
     "UnitBuff",
