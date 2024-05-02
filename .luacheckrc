@@ -114,6 +114,7 @@ globals = {
     -- Constants
     "CLASS_ICON_TCOORDS",
     "CLASS_SORT_ORDER",
+    "CUSTOM_CLASS_COLORS",
     "DebuffTypeColor",
     "DEFAULT_CHAT_FRAME",
     "LOCALIZED_CLASS_NAMES_MALE",
