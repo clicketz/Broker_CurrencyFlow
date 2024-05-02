@@ -719,10 +719,10 @@ function Currencyflow:addNewCurrencySection(type, title)
     tooltip:SetCell(lineNum, 1, format(fmt_yellow, title), "LEFT", tooltip:GetColumnCount())
 
     l1 = tooltip:AddLine(L["CFGNAME_GAINED"])
-    l2 = tooltip:AddLine(L["CFGNAME_SPENT"])
-    l3 = tooltip:AddLine(L["CFGNAME_PROFIT"])
+    tooltip:AddLine(L["CFGNAME_SPENT"])
+    tooltip:AddLine(L["CFGNAME_PROFIT"])
   else
-    l1 = tooltip:AddLine(title)
+    tooltip:AddLine(title)
   end
 
   -- Get values for gold
