@@ -30,6 +30,8 @@ local COLOR_COPPER      = "eda55f"
 local COLOR_SILVER      = "c7c7cf"
 local COLOR_GOLD        = "ffd700"
 local COLOR_MAXREACHED  = "ff8800"
+local COLOR_LIGHTBLUE   = "aaaaff"
+local COLOR_SKYBLUE     = "ddddff"
 
 local fmt_yellow        = "|cffffff00%s|r"
 local fmt_white         = "|cffffffff%s|r"
@@ -326,7 +328,7 @@ end
 ]]
 function Currencyflow:FormatCurrency(amt, color)
   if color == "" then
-    if amt < 0 then color = "ff0000" else color = "00ff00" end
+    if amt < 0 then color = COLOR_RED else color = COLOR_GREEN end
   end
   return "|cff" .. color .. amt .. "|r"
 end
@@ -594,9 +596,9 @@ function Currencyflow:addCharactersAndTotal()
             if self.db.profile.colorMaxReached and v["maxReached" .. id] then
               color = COLOR_MAXREACHED
             elseif math.fmod(colNum, 2) == 0 then
-              color = "aaaaff"
+              color = COLOR_LIGHTBLUE
             else
-              color = "ddddff"
+              color = COLOR_SKYBLUE
             end
             tooltip:SetCell(newLineNum, colNum, self:FormatCurrency(self:db_GetTotal(k, id), color), "RIGHT")
             colNum = colNum + 1
@@ -617,7 +619,7 @@ function Currencyflow:addCharactersAndTotal()
 
     for id in pairs(tracking) do
       if self.db.profile["showCurrency" .. id] then
-        if math.fmod(colNum, 2) == 0 then color = "aaaaff" else color = "ddddff" end
+        if math.fmod(colNum, 2) == 0 then color = COLOR_LIGHTBLUE else color = COLOR_SKYBLUE end
         tooltip:SetCell(newLineNum, colNum, self:FormatCurrency(self:db_GetTotal(0, id), color), "RIGHT")
         colNum = colNum + 1
       end
@@ -753,7 +755,7 @@ function Currencyflow:setCurrencyColumn(startRow, startCol, t, g, s, doPerHour)
       tooltip:SetCell(startRow + 1, startCol, self:FormatGold(s, false), "RIGHT")
       tooltip:SetCell(startRow + 2, startCol, self:FormatGold(g - s, true), "RIGHT")
     else
-      if math.fmod(startCol, 2) == 0 then color = "aaaaff" else color = "ddddff" end
+      if math.fmod(startCol, 2) == 0 then color = COLOR_LIGHTBLUE else color = COLOR_SKYBLUE end
       tooltip:SetCell(startRow, startCol, self:FormatCurrency(g, color), "RIGHT")
       tooltip:SetCell(startRow + 1, startCol, self:FormatCurrency(s, color), "RIGHT")
       tooltip:SetCell(startRow + 2, startCol, self:FormatCurrency(g - s, ""), "RIGHT")
@@ -771,7 +773,7 @@ function Currencyflow:setCurrencyColumn(startRow, startCol, t, g, s, doPerHour)
         tooltip:SetCell(startRow + 1, startCol + 1, self:FormatGold(s / t * 3600, false), "RIGHT")
         tooltip:SetCell(startRow + 2, startCol + 1, self:FormatGold((g - s) / t * 3600, true), "RIGHT")
       else
-        if math.fmod(startCol, 2) == 0 then color = "aaaaff" else color = "ddddff" end
+        if math.fmod(startCol, 2) == 0 then color = COLOR_LIGHTBLUE else color = COLOR_SKYBLUE end
         tooltip:SetCell(startRow, startCol + 1, self:FormatCurrency(g / t * 3600, color), "RIGHT")
         tooltip:SetCell(startRow + 1, startCol + 1, self:FormatCurrency(s / t * 3600, color), "RIGHT")
         tooltip:SetCell(startRow + 2, startCol + 1, self:FormatCurrency((g - s) / t * 3600, ""), "RIGHT")
