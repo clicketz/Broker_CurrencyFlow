@@ -689,7 +689,7 @@ function Currencyflow:drawTooltip()
 end
 
 function Currencyflow:addNewCurrencySection(type, title)
-  local char, day, currency, column, t, g, s, l1
+  local char, day, column, t, g, s, l1
 
   if type == "session" then
     char = self.meidx; day = 0
@@ -722,7 +722,7 @@ function Currencyflow:addNewCurrencySection(type, title)
     tooltip:AddLine(L["CFGNAME_SPENT"])
     tooltip:AddLine(L["CFGNAME_PROFIT"])
   else
-    tooltip:AddLine(title)
+    l1 = tooltip:AddLine(title)
   end
 
   -- Get values for gold
