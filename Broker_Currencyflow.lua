@@ -689,7 +689,7 @@ function Currencyflow:drawTooltip()
 end
 
 function Currencyflow:addNewCurrencySection(type, title)
-  local char, day, currency, column, t, g, s, l1, l2, l3
+  local char, day, currency, column, t, g, s, l1
 
   if type == "session" then
     char = self.meidx; day = 0
