@@ -3,6 +3,7 @@ max_line_length = false
 exclude_files = {
     ".luacheckrc",
     "Libs/",
+    "Locales/",
 }
 ignore = {
     "11./SLASH_.*", -- slash handler
