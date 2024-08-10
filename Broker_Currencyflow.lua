@@ -585,7 +585,7 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
 
     if tracking[currencyId].type == TYPE_MONEY then
       -- Very silly, can track with a single number. Doing this to keep gained/spent structure.
-      if warbankGain > 0 then
+      if warbankGain >= 0 then
         self.db.global.warbank.history[self.today][currencyId].gained = (self.db.global.warbank.history[self.today][currencyId].gained or 0) + warbankGain
         self.session[currencyId].gained = self.session[currencyId].gained + warbankGain
       else
@@ -926,23 +926,23 @@ function Currencyflow:UpdateLabel()
     elseif segment == 5 or segment == 6 then
       -- Today gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, self.today, "gold")
-      _, gb, sb = self:db_GetBankHistory(self.today, "gold")
-      g = g + gb
-      s = s + sb
+      -- _, gb, sb = self:db_GetBankHistory(self.today, "gold")
+      -- g = g + gb
+      -- s = s + sb
       if segment == 5 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 7 or segment == 8 then
       -- Week gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -7, "gold")
-      _, gb, sb = self:db_GetBankHistory(-7, "gold")
-      g = g + gb
-      s = s + sb
+      -- _, gb, sb = self:db_GetBankHistory(-7, "gold")
+      -- g = g + gb
+      -- s = s + sb
       if segment == 7 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 9 or segment == 10 then
       -- Month gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -30, "gold")
-      _, gb, sb = self:db_GetBankHistory(-30, "gold")
-      g = g + gb
-      s = s + sb
+      -- _, gb, sb = self:db_GetBankHistory(-30, "gold")
+      -- g = g + gb
+      -- s = s + sb
       if segment == 9 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif tracking[segment] then
       -- Other currencies
