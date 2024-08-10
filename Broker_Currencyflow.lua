@@ -885,7 +885,7 @@ local launcher = LDB:NewDataObject(MODNAME, {
       }
       StaticPopup_Show("RESET_SESSION")
     elseif button == "RightButton" then
-      Currencyflow:LoadCurrencies(); InterfaceOptionsFrame_OpenToCategory(FULLNAME)
+      Currencyflow:LoadCurrencies(); Settings.OpenToCategory(FULLNAME)
     end
   end,
 
