@@ -760,7 +760,7 @@ function Currencyflow:drawTooltip()
 end
 
 function Currencyflow:addNewCurrencySection(type, title)
-  local char, day, column, t, g, s, l1, tb, gb, sb
+  local char, day, column, t, g, s, l1, gb, sb
 
   if type == "session" then
     char = self.meidx; day = 0
@@ -799,7 +799,7 @@ function Currencyflow:addNewCurrencySection(type, title)
   -- Get values for gold
   column = 2
   t, g, s = self:db_GetHistory(char, day, "gold")
-  tb, gb, sb = self:db_GetBankHistory(day, "gold")
+  _, gb, sb = self:db_GetBankHistory(day, "gold")
   g = g + gb
   s = s + sb
   self:setCurrencyColumn(l1, column, t, g, s, true)
@@ -811,7 +811,7 @@ function Currencyflow:addNewCurrencySection(type, title)
   for id in pairs(tracking) do
     if self.db.profile["showCurrency" .. id] then
       t, g, s = self:db_GetHistory(char, day, id)
-      -- tb, gb, sb = self:db_GetBankHistory(day, id)
+      -- _, gb, sb = self:db_GetBankHistory(day, id)
       -- g = g + gb
       -- s = s + sb
       self:setCurrencyColumn(l1, column, t, g, s, false)
@@ -914,7 +914,7 @@ local launcher = LDB:NewDataObject(MODNAME, {
 
 function Currencyflow:UpdateLabel()
   local function getLabelSegment(segment)
-    local t, g, s, amount, color, tb, gb, sb
+    local t, g, s, amount, color, gb, sb
     segment = tonumber(segment)
     if segment == 2 then
       -- Current Gold
@@ -926,21 +926,21 @@ function Currencyflow:UpdateLabel()
     elseif segment == 5 or segment == 6 then
       -- Today gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, self.today, "gold")
-      tb, gb, sb = self:db_GetBankHistory(self.today, "gold")
+      _, gb, sb = self:db_GetBankHistory(self.today, "gold")
       g = g + gb
       s = s + sb
       if segment == 5 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 7 or segment == 8 then
       -- Week gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -7, "gold")
-      tb, gb, sb = self:db_GetBankHistory(-7, "gold")
+      _, gb, sb = self:db_GetBankHistory(-7, "gold")
       g = g + gb
       s = s + sb
       if segment == 7 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 9 or segment == 10 then
       -- Month gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -30, "gold")
-      tb, gb, sb = self:db_GetBankHistory(-30, "gold")
+      _, gb, sb = self:db_GetBankHistory(-30, "gold")
       g = g + gb
       s = s + sb
       if segment == 9 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
