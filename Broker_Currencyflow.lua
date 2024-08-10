@@ -246,6 +246,8 @@ function Currencyflow:updateTime()
   self.db.realm.chars[self.meidx].history = self.db.realm.chars[self.meidx].history or {}
   self.db.realm.chars[self.meidx].history[self.today] = self.db.realm.chars[self.meidx].history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
   self.db.realm.chars[self.meidx].history[self.today].time = self.db.realm.chars[self.meidx].history[self.today].time + now - self.savedTime
+  self.db.global.warbank.history[self.today] = self.db.global.warbank.history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
+  self.db.global.warbank.history[self.today].time = self.db.global.warbank.history[self.today].time + now - self.savedTime
   self.savedTime = now
 end
 
@@ -333,6 +335,42 @@ function Currencyflow:FormatCurrency(amount, color)
   return "|cff" .. color .. amount .. "|r"
 end
 
+---@param day number 0 for session or negative for range
+---@param currency number|string what type of currency you're looking for, but only concerned with gold for now
+---@return number time
+---@return number gained gold gained for the day
+---@return number spent gold spent for the day
+function Currencyflow:db_GetBankHistory(day, currency)
+  -- if not self.db.global.warbank.history[day] then
+  --   self.db.global.warbank.history[day] = { time = 0, gold = { gained = 0, spent = 0 } }
+  -- end
+
+  local time, gained, spent = 1, 0, 0
+
+  local getval = function(d, c)
+    if not self.db.global.warbank.history[d] then
+      self.db.global.warbank.history[d] = { time = 0, gold = { gained = 0, spent = 0 } }
+      self.db.global.warbank.history[d][c] = { gained = 0, spent = 0 }
+    end
+
+    return self.db.global.warbank.history[d].time, self.db.global.warbank.history[d][c].gained, self.db.global.warbank.history[d][c].spent
+  end
+
+  if day >= 0 then
+    time, gained, spent = getval(day, currency)
+  else
+    local t, g, s
+    for i = self.today + day, self.today do
+      t, g, s = getval(i, currency)
+      time = time + t
+      gained = gained + g
+      spent = spent + s
+    end
+  end
+
+  return time, gained, spent
+end
+
 --[[
   Returns time, gained, spent values.
   char: Character index, or 0 to sum all (non-ignored)
@@ -416,6 +454,7 @@ function Currencyflow:db_GetTotal(char, currency)
         value = value + (self.db.realm.chars[k][currency] or 0)
       end
     end
+    value = value + (currency == "gold" and self.db.global.warbank.gold or 0)
   elseif self.db.realm.chars[char] then
     value = self.db.realm.chars[char][currency] or 0
   end
@@ -469,16 +508,22 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
 
     -- Remove last history entry
     self.db.realm.chars[self.meidx].history[self.today - HISTORY_DAYS] = nil
+    self.db.global.warbank.history[self.today - HISTORY_DAYS] = nil
 
-    -- Create blank entry for today
+    -- Create blank entries for today
     self.db.realm.chars[self.meidx].history[self.today] = self.db.realm.chars[self.meidx].history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
+    self.db.global.warbank.history[self.today] = self.db.global.warbank.history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
   end
 
   -- Remember what it was
   local oldVal = self.db.realm.chars[self.meidx][currencyId] or 0
+  local warbankGain
 
   -- Get new value and check if maximum is reached
   if tracking[currencyId].type == TYPE_MONEY then
+    local old = self.db.global.warbank.gold
+    self.db.global.warbank.gold = C_Bank.FetchDepositedMoney(Enum.BankType.Account)
+    warbankGain = self.db.global.warbank.gold - old
     amount = GetMoney()
   elseif tracking[currencyId].type == TYPE_CURRENCY then
     local currencyInfo = C_CurrencyInfo.GetCurrencyInfo(currencyId)
@@ -510,7 +555,10 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
   end
 
   -- Bail if amount has not changed
-  if amount == oldVal then return end
+  if amount == oldVal
+  and warbankGain == 0 then
+    return
+  end
 
   -- Set new value
   self.db.realm.chars[self.meidx][currencyId] = amount
@@ -519,6 +567,7 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
   self.db.realm.chars[self.meidx].history = self.db.realm.chars[self.meidx].history or {}
   self.db.realm.chars[self.meidx].history[self.today] = self.db.realm.chars[self.meidx].history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
   self.db.realm.chars[self.meidx].history[self.today][currencyId] = self.db.realm.chars[self.meidx].history[self.today][currencyId] or { gained = 0, spent = 0 }
+  self.db.global.warbank.history[self.today] = self.db.global.warbank.history[self.today] or { time = 0, gold = { gained = 0, spent = 0 } }
 
   -- Make sure session structure exists
   self.session[currencyId] = self.session[currencyId] or { gained = 0, spent = 0 }
@@ -532,6 +581,17 @@ function Currencyflow:db_UpdateCurrency(currencyId, updateSession)
     else
       self.db.realm.chars[self.meidx].history[self.today][currencyId].spent = (self.db.realm.chars[self.meidx].history[self.today][currencyId].spent or 0) + oldVal - amount
       self.session[currencyId].spent = self.session[currencyId].spent + oldVal - amount
+    end
+
+    if tracking[currencyId].type == TYPE_MONEY then
+      -- Very silly, can track with a single number. Doing this to keep gained/spent structure.
+      if warbankGain > 0 then
+        self.db.global.warbank.history[self.today][currencyId].gained = (self.db.global.warbank.history[self.today][currencyId].gained or 0) + warbankGain
+        self.session[currencyId].gained = self.session[currencyId].gained + warbankGain
+      else
+        self.db.global.warbank.history[self.today][currencyId].spent = (self.db.global.warbank.history[self.today][currencyId].spent or 0) - warbankGain
+        self.session[currencyId].spent = self.session[currencyId].spent - warbankGain
+      end
     end
   end
 end
@@ -582,6 +642,15 @@ function Currencyflow:addCharactersAndTotal()
     tooltip:AddSeparator()
     local lineNum = tooltip:AddLine(" ")
     tooltip:SetCell(lineNum, 1, format(fmt_yellow, L["CFGNAME_CHARACTERS"]), "LEFT", tooltip:GetColumnCount())
+
+    -- Add warbank
+    do
+      local newLineNum = tooltip:AddLine(" ")
+      tooltip:SetCell(newLineNum, 1, ACCOUNT_WIDE_FONT_COLOR:WrapTextInColorCode("Warbank"))
+      tooltip:SetCell(newLineNum, 2, self:FormatGold(self.db.global.warbank.gold, false), "RIGHT", colsPerItem)
+
+      colNum = colsPerItem + 2
+    end
 
     for k, v in pairs(self.db.realm.chars) do
       if not v.ignore then
@@ -691,7 +760,7 @@ function Currencyflow:drawTooltip()
 end
 
 function Currencyflow:addNewCurrencySection(type, title)
-  local char, day, column, t, g, s, l1
+  local char, day, column, t, g, s, l1, tb, gb, sb
 
   if type == "session" then
     char = self.meidx; day = 0
@@ -730,6 +799,9 @@ function Currencyflow:addNewCurrencySection(type, title)
   -- Get values for gold
   column = 2
   t, g, s = self:db_GetHistory(char, day, "gold")
+  tb, gb, sb = self:db_GetBankHistory(day, "gold")
+  g = g + gb
+  s = s + sb
   self:setCurrencyColumn(l1, column, t, g, s, true)
 
   column = column + 1
@@ -739,6 +811,9 @@ function Currencyflow:addNewCurrencySection(type, title)
   for id in pairs(tracking) do
     if self.db.profile["showCurrency" .. id] then
       t, g, s = self:db_GetHistory(char, day, id)
+      -- tb, gb, sb = self:db_GetBankHistory(day, id)
+      -- g = g + gb
+      -- s = s + sb
       self:setCurrencyColumn(l1, column, t, g, s, false)
       column = column + 1
     end
@@ -839,7 +914,7 @@ local launcher = LDB:NewDataObject(MODNAME, {
 
 function Currencyflow:UpdateLabel()
   local function getLabelSegment(segment)
-    local t, g, s, amount, color
+    local t, g, s, amount, color, tb, gb, sb
     segment = tonumber(segment)
     if segment == 2 then
       -- Current Gold
@@ -851,14 +926,23 @@ function Currencyflow:UpdateLabel()
     elseif segment == 5 or segment == 6 then
       -- Today gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, self.today, "gold")
+      tb, gb, sb = self:db_GetBankHistory(self.today, "gold")
+      g = g + gb
+      s = s + sb
       if segment == 5 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 7 or segment == 8 then
       -- Week gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -7, "gold")
+      tb, gb, sb = self:db_GetBankHistory(-7, "gold")
+      g = g + gb
+      s = s + sb
       if segment == 7 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif segment == 9 or segment == 10 then
       -- Month gold total, gold/hr
       t, g, s = self:db_GetHistory(self.meidx, -30, "gold")
+      tb, gb, sb = self:db_GetBankHistory(-30, "gold")
+      g = g + gb
+      s = s + sb
       if segment == 9 then return self:FormatGold(g - s, false) else return self:FormatGold((g - s) / t * 3600, false) .. "/Hr" end
     elseif tracking[segment] then
       -- Other currencies
@@ -1291,7 +1375,13 @@ function Currencyflow:OnEnable()
       showCashPerHour = true,
       showCurrency392 = false, -- Honor points
       showCurrency395 = false, -- Justice points
-    }
+    },
+    global = {
+      warbank = {
+        gold = 0,
+        history = {},
+      },
+    },
   }, "Default")
 
   -- If there is a database, make sure it's up to date
@@ -1393,6 +1483,7 @@ function Currencyflow:OnEnable()
 end
 
 function Currencyflow:UnregisterEvents()
+  self:UnregisterEvent("ACCOUNT_MONEY")
   self:UnregisterEvent("PLAYER_MONEY")
   self:UnregisterEvent("PLAYER_TRADE_MONEY")
   self:UnregisterEvent("TRADE_MONEY_CHANGED")
@@ -1403,6 +1494,7 @@ function Currencyflow:UnregisterEvents()
 end
 
 function Currencyflow:RegisterEvents()
+  self:RegisterEvent("ACCOUNT_MONEY", "UpdateGold")
   self:RegisterEvent("PLAYER_MONEY", "UpdateGold")
   self:RegisterEvent("PLAYER_TRADE_MONEY", "UpdateGold")
   self:RegisterEvent("TRADE_MONEY_CHANGED", "UpdateGold")
