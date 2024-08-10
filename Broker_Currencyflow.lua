@@ -1471,7 +1471,7 @@ function Currencyflow:OnEnable()
   self:SetupOptions()
 
   -- Create some slashcommands
-  _G.SlashCmdList["CASHFLOW"] = function() InterfaceOptionsFrame_OpenToCategory(FULLNAME) end
+  _G.SlashCmdList["CASHFLOW"] = function() Settings.OpenToCategory(FULLNAME) end
   _G["SLASH_CASHFLOW1"] = "/cashflow"
   _G["SLASH_CASHFLOW2"] = "/cf"
 
